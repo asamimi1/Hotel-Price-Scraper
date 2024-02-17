@@ -88,7 +88,8 @@ def scrape_hotel_prices(location, check_in_date, check_out_date):
 
         # Grab Hotel Elements
         hotel_data = []
-        hotels = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, "//div[contains(@class, 'uitk-layout-flex uitk-layout-flex-block-size-full-size uitk-layout-flex-flex-direction-column uitk-layout-flex-justify-content-space-between')]")))
+        # hotels = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, "//div[contains(@class, 'uitk-layout-flex uitk-layout-flex-block-size-full-size uitk-layout-flex-flex-direction-column uitk-layout-flex-justify-content-space-between')]")))
+        hotels = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, "//div[contains(@class, 'uitk-card uitk-card-roundcorner-all uitk-card-has-border uitk-card-has-primary-theme')]")))
         for hotel in hotels:
             try:
                 name_element = hotel.find_element(By.XPATH, ".//h3[contains(@class, 'uitk-heading-5')]")
@@ -106,11 +107,15 @@ def scrape_hotel_prices(location, check_in_date, check_out_date):
                 rating_element = hotel.find_element(By.XPATH, ".//span[contains(@class, 'uitk-badge-base-text')]")
                 hotel_rating = rating_element.text.strip()
 
+                url_element = hotel.find_element(By.XPATH, ".//a[contains(@class, 'uitk-card-link')]")
+                hotel_url = url_element.get_attribute("href")
+
                 hotel_data.append({
                     "Hotel Name": hotel_name,
                     "Location": hotel_location,
                     "Price": hotel_price,
-                    "Rating": hotel_rating
+                    "Rating": hotel_rating,
+                    "URL": hotel_url
                 })
 
             except Exception as e:
@@ -124,10 +129,10 @@ def scrape_hotel_prices(location, check_in_date, check_out_date):
         # Write Hotel Data to Excel
         wb = Workbook()
         ws = wb.active
-        ws.append(["Hotel Name", "Location", "Price", "Rating"])
+        ws.append(["Hotel Name", "Location", "Price", "Rating", "URL"])
 
         for hotel in hotel_data:
-            ws.append([hotel["Hotel Name"], hotel["Location"], hotel["Price"], hotel["Rating"]])
+            ws.append([hotel["Hotel Name"], hotel["Location"], hotel["Price"], hotel["Rating"], hotel["URL"]])
 
         wb.save("hotel_data.xlsx")
 
